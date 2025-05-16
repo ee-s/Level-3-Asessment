@@ -10,6 +10,30 @@ class Orders:
         self.phone_number = phone_number
         self.adress = adress 
 
+class GUI:
+    def __init__(self,root):
+        self.root = root
+        self.orders = []
+
+        root.title("Ordering System")
+        root.geometry("600x600")
+
+        self.label = tk.Label(root, text = "Burritos", font=("Arial",14))
+        self.label.pack(pady=20)
+    
+        self.order_button = tk.Button(root, text="Enter Order", command=enter_order)
+        self.order_button.pack(pady=10)
+        self.management_button = tk.Button(root, text="Management Summary", command=management_summary)
+        self.management_button.pack(pady=10)
+        self.kitchen_button = tk.Button(root, text="Kitchen Screen", command=kitchen_summary)
+        self.kitchen_button.pack(pady=10)
+
+        # status label
+        self.status_label = tk.Label(root,text="", fg="blue")
+        self.status_label.pack(pady=20)
+
+        self.track_widgets = [] # Tracks widgets for clearing
+
 def highlight_button(clicked, others):
     clicked.config(bg="lightgreen", activebackground="green")
     for button in others:
@@ -62,26 +86,7 @@ def kitchen_summary():
 
     
     
-# Main window 
-
-root = tk.Tk()
-root.title("Ordering System")
-root.geometry("600x600")
-
-label = tk.Label(root, text = "Burritos", font=("Arial",14))
-label.pack(pady=20)
-    
-order_button = tk.Button(root, text="Enter Order", command=enter_order)
-order_button.pack(pady=10)
-management_button = tk.Button(root, text="Management Summary", command=management_summary)
-management_button.pack(pady=10)
-kitchen_button = tk.Button(root, text="Kitchen Screen", command=kitchen_summary)
-kitchen_button.pack(pady=10)
-
-
-# status label
-status_label = tk.Label(root,text="", fg="blue")
-status_label.pack(pady=20)
+# -----------Main window-------------
 
 if __name__ == "__main__":
     root.mainloop()
