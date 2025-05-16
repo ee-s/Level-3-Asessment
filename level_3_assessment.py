@@ -3,12 +3,12 @@ import tkinter as tk
 # ------------------ Order Class ----------------
 class Orders:
     """
-wsedfgh
+
     """
     def __init__(self, name, phone_number, adress):
         self.name = name
         self.phone_number = phone_number
-        self.adress = adress
+        self.adress = adress 
 
 def highlight_button(clicked, others):
     clicked.config(bg="lightgreen", activebackground="green")
@@ -38,6 +38,9 @@ def enter_order():
         Orders(name,phone_number,adress)
         status_label.config(text="Order Processed ✅")
         order_button.config(bg="SystemButtonFace")
+        name_entry.delete(0,tk.END)
+        phone_number_entry.delete(0,tk.END)
+        adress_entry.delete(0,tk.END)
         
     
     submit_button = tk.Button(root, text="Submit", command=place_order)
@@ -82,6 +85,4 @@ status_label.pack(pady=20)
 
 if __name__ == "__main__":
     root.mainloop()
-
-
 
