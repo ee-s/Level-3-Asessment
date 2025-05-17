@@ -76,7 +76,6 @@ class OrderApp:
                 phone_entry.delete(0, tk.END)
                 address_entry.delete(0, tk.END)
 
-                self.order_button.config(bg="SystemButtonFace")
             else:
                 self.status_label.config(text="Please fill in all fields", fg="red")
 

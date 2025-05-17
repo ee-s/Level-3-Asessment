@@ -1,7 +1,6 @@
 import tkinter as tk
 
-
-# ------------------ Order Class ----------------
+# ------------------ Order Class ---------------
 class Orders:
     """
 
@@ -66,17 +65,30 @@ class GUI:
 
 
         def place_order():
-            name = name_entry.get()
-            phone_number = phone_number_entry.get()
-            address = address_entry.get()
-            Orders(name,phone_number,address)
-            self.status_label.config(text="Order Processed ✅")
+            name = name_entry.get().strip()
+            phone_number = phone_number_entry.get().strip()
+            address = address_entry.get().strip()
+        
+            if not name or not phone_number or not address:
+                self.status_label.config(text="Enter all feilds ❌", fg="darkred")
+                return
+            if not (7<=len(phone_number)<=18):
+                self.status_label.config(text="Enter valid phone number ❌", fg="darkred")
+                return
+            if name.isdigit() or address.isdigit():
+                self.status_label.config(text="Enter valid name or address ❌", fg="darkred")
+                return
+            
+
+            order=Orders(name,phone_number,address)
+            self.orders.append(order)
+            self.status_label.config(text="Order Processed ✅", fg="green")
             self.order_button.config(bg="SystemButtonFace")
             name_entry.delete(0,tk.END)
             phone_number_entry.delete(0,tk.END)
             address_entry.delete(0,tk.END)
             self.root.after(2000,lambda:self.status_label.config(text="")) # lambda calls a simple one line function
-            
+                
         
         submit_button = tk.Button(self.root, text="Submit", command=place_order)
         submit_button.pack(pady=10)
@@ -92,17 +104,26 @@ class GUI:
     def management_summary(self):
         self.clear_widgets()
         self.highlight_button(self.management_button, [self.order_button, self.kitchen_button])
-        tk.Label(self.root, text="Management Summary").pack()
-        def clear():
-            self.management_button.config(bg="SystemButtonFace")
-
+        management_label=tk.Label(self.root, text="Management Summary")
+        management_label.pack()
+        self.track_widgets +=[management_label]
+        
+        for order in self.orders:
+            managment_info_label = tk.Label(self.root, text=f"Name: {order.name}\nPhone: {order.phone_number}\nAddress: {order.address}")
+            managment_info_label.pack()
+            self.track_widgets.append(managment_info_label)
 
     def kitchen_summary(self):
         self.clear_widgets()
         self.highlight_button(self.kitchen_button, [self.order_button, self.management_button])
-        tk.Label(self.root, text="Kitchen summary").pack()
-    
-# -----------Main window-------------
+        kitchen_label = tk.Label(self.root, text="Kitchen summary")
+        kitchen_label.pack()
+        self.track_widgets +=[kitchen_label]
+        for order in self.orders:
+            kitchen_info_label = tk.Label(self.root, text=f"Name: {order.name}- Address: {order.address}")
+            kitchen_info_label.pack()
+            self.track_widgets.append(kitchen_info_label)
+# ----------- Main -------------
 
 if __name__ == "__main__":
     root= tk.Tk()
