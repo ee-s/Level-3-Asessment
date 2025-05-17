@@ -34,6 +34,8 @@ class GUI:
 
         self.track_widgets = [] # Tracks widgets for clearing
 
+        self.delivery_variable= tk.BooleanVar()
+
     def clear_widgets(self):
         for widget in self.track_widgets:
             widget.destroy()
@@ -53,31 +55,55 @@ class GUI:
         name_entry = tk.Entry(self.root)
         name_entry.pack()
 
+        def hide_delivery_varibles():
+            if self.delivery_variable.get():
+                phone_number_label.pack()
+                phone_number_entry.pack()
+                address_label.pack()
+                address_entry.pack()
+            else:
+                phone_number_label.pack_forget()
+                phone_number_entry.pack_forget()
+                address_label.pack_forget()
+                address_entry.pack_forget()
+
+        delivery_checkbox = tk.Checkbutton(self.root, text= "Delivery?", variable= self.delivery_variable, 
+                                           command=hide_delivery_varibles)
+        delivery_checkbox.pack()
+
         phone_number_label=tk.Label(self.root, text="Phone Number:")
-        phone_number_label.pack()
         phone_number_entry = tk.Entry(self.root)
-        phone_number_entry.pack()
-
         address_label = tk.Label(self.root, text="Address:")
-        address_label.pack()
         address_entry = tk.Entry(self.root)
-        address_entry.pack()
 
+        hide_delivery_varibles()
 
         def place_order():
             name = name_entry.get().strip()
-            phone_number = phone_number_entry.get().strip()
-            address = address_entry.get().strip()
-        
-            if not name or not phone_number or not address:
-                self.status_label.config(text="Enter all feilds ❌", fg="darkred")
+            if not name or name.isdigit():
+                self.status_label.config(text="Enter valid name ❌", fg="darkred")
+                self.root.after(3000,lambda:self.status_label.config(text="")) 
                 return
-            if not (7<=len(phone_number)<=18):
-                self.status_label.config(text="Enter valid phone number ❌", fg="darkred")
-                return
-            if name.isdigit() or address.isdigit():
-                self.status_label.config(text="Enter valid name or address ❌", fg="darkred")
-                return
+            if self.delivery_variable.get():
+                phone_number = phone_number_entry.get().strip()
+                address = address_entry.get().strip()
+                if not phone_number or not (7<=len(phone_number)<=18):
+                    self.status_label.config(text="Enter valid phone number ❌", fg="darkred")
+                    self.root.after(3000,lambda:self.status_label.config(text="")) 
+                    return
+                if not address or address.isdigit():
+                    self.status_label.config(text="Enter valid adress ❌", fg="darkred")
+                    self.root.after(3000,lambda:self.status_label.config(text="")) 
+                    return
+                
+                if name.isdigit() or address.isdigit():
+                    self.status_label.config(text="Enter valid name or address ❌", fg="darkred")
+                    self.root.after(3000,lambda:self.status_label.config(text="")) 
+                    return
+            else: 
+                phone_number= "N/A"
+                address= "N/A"
+            
             
 
             order=Orders(name,phone_number,address)
@@ -97,7 +123,7 @@ class GUI:
             name_label, name_entry,
             phone_number_label,phone_number_entry,
             address_label,address_entry,
-            submit_button,
+            submit_button, delivery_checkbox
         ]
 
 
@@ -123,8 +149,8 @@ class GUI:
             kitchen_info_label = tk.Label(self.root, text=f"Name: {order.name}- Address: {order.address}")
             kitchen_info_label.pack()
             self.track_widgets.append(kitchen_info_label)
-# ----------- Main -------------
 
+# ----------- Main -------------
 if __name__ == "__main__":
     root= tk.Tk()
     run_gui = GUI(root)
