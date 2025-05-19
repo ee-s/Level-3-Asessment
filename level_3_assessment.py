@@ -1,14 +1,16 @@
 import tkinter as tk
+from tkinter import ttk
 
 # ------------------ Order Class ---------------
 class Orders:
     """
 
     """
-    def __init__(self, name, phone_number, address):
+    def __init__(self, name, phone_number, address, burritos):
         self.name = name
         self.phone_number = phone_number
         self.address = address 
+        self.burritos = burritos
 
 class GUI:
     def __init__(self,root):
@@ -36,6 +38,8 @@ class GUI:
 
         self.delivery_variable= tk.BooleanVar()
 
+        self.burrito_boxes = []
+
     def clear_widgets(self):
         for widget in self.track_widgets:
             widget.destroy()
@@ -46,10 +50,18 @@ class GUI:
         for button in others:
             button.config(bg="SystemButtonFace")
 
-            
+    def get_burrito_amount(self):
+        burrito_label= tk.Label(self.root, text="How many burritos?")
+        burrito_label.pack()
+
+        self.burrito_count_entry = tk.Entry(self.root)
+        self.burrito_count_entry.pack()
+#---------- Add -----------
+
     def enter_order(self):
         self.clear_widgets()
         self.highlight_button(self.order_button, [self.kitchen_button, self.management_button])
+
         name_label=tk.Label(self.root, text="Name:")
         name_label.pack()
         name_entry = tk.Entry(self.root)
@@ -67,7 +79,7 @@ class GUI:
                 address_label.pack_forget()
                 address_entry.pack_forget()
 
-        delivery_checkbox = tk.Checkbutton(self.root, text= "Delivery?", variable= self.delivery_variable, 
+        delivery_checkbox = tk.Checkbutton(self.root, text= "Delivery? \n(+2.50$)", variable= self.delivery_variable, 
                                            command=hide_delivery_varibles)
         delivery_checkbox.pack()
 
@@ -103,19 +115,22 @@ class GUI:
             else: 
                 phone_number= "N/A"
                 address= "N/A"
-            
-            
 
-            order=Orders(name,phone_number,address)
-            self.orders.append(order)
+            self.store_name = name
+            self.store_phone_number = phone_number
+            self.store_address = address
+
+            self.clear_widgets()
+            self.get_burrito_amount()
+
             self.status_label.config(text="Order Processed ✅", fg="green")
+            self.root.after(2000,lambda:self.status_label.config(text="")) # lambda calls a simple one line function
             self.order_button.config(bg="SystemButtonFace")
             name_entry.delete(0,tk.END)
             phone_number_entry.delete(0,tk.END)
             address_entry.delete(0,tk.END)
-            self.root.after(2000,lambda:self.status_label.config(text="")) # lambda calls a simple one line function
-                
-        
+
+                  
         submit_button = tk.Button(self.root, text="Submit", command=place_order)
         submit_button.pack(pady=10)
 
@@ -125,7 +140,6 @@ class GUI:
             address_label,address_entry,
             submit_button, delivery_checkbox
         ]
-
 
     def management_summary(self):
         self.clear_widgets()
