@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 import json
 
+REGULAR_PRICE = 8.5
+DELIVERY_PRICE = 2.5
+HIGHER_PRICE = 13.5
 # ------------------ Order Class ---------------
 class Orders:
     def __init__(self, name, phone_number, address, burritos, delivery):
@@ -38,6 +41,38 @@ class GUI:
         self.delivery_variable = tk.BooleanVar()
         self.burrito_boxes = []
 
+    def select_burritos(self, burrito_count):
+            select_burritos_label = tk.Label(self.root,text="Select burrito types" )
+            select_burritos_label.pack()
+            self.track_widgets.append(select_burritos_label)            
+            regular_burrito = [["Cheese", REGULAR_PRICE], ["Plain", REGULAR_PRICE], ["Spicy", REGULAR_PRICE]]
+            higher_burrito= [["Deluxe", HIGHER_PRICE],["Large", HIGHER_PRICE],["Gourmet", HIGHER_PRICE]]
+
+            burrito_types= higher_burrito + regular_burrito
+            burrito_types = [f"{name} - ${price:.2f}" for name,price in burrito_types]
+            for burrito in range(burrito_count):
+                var = tk.StringVar()
+                burrito_menu = ttk.Combobox(self.root, textvariable=var, values=burrito_types)
+                burrito_menu.pack(pady=10)
+                self.track_widgets.append(burrito_menu)
+                self.burrito_boxes.append(var)
+            
+            confirm_button = tk.Button(self.root, text="Confirm", command=lambda: self.process_burrito_selection)
+            confirm_button.pack(pady=10)
+            self.track_widgets.append(confirm_button)
+
+    def process_burrito_selection(self):
+        selected_burritos = [ver.get() for ver in self.burrito_boxes]
+        if all(selected_burritos):
+            self.store_order(selected_burritos)
+            self.status_label.config(text="Order placed successfully ✅", fg="green")
+            self.root.after(2000, lambda: self.status_label.config(text=""))
+            self.clear_widgets()
+        else:
+            self.status_label.config(text="❌ Please select all burrito types ❌", fg="darkred")
+            self.root.after(2000, lambda: self.status_label.config(text=""))
+
+
     def clear_widgets(self):
         for widget in self.track_widgets:
             widget.destroy()
@@ -72,14 +107,14 @@ class GUI:
                 self.burrito_count_entry.delete(0, tk.END)
                 self.clear_widgets()
 
-                self.store_order()
+                self.select_burritos(self.burrito_count)
 
-                self.status_label.config(text="Order Processed ✅", fg="green")
+                self.status_label.config(text=" Order Processed ✅", fg="green")
                 self.root.after(2000, lambda: self.status_label.config(text=""))
                 self.order_button.config(bg="SystemButtonFace")
-                return
+                return burrito_count
 
-        self.status_label.config(text="Enter a valid number of burritos ❌", fg="darkred")
+        self.status_label.config(text="❌ Enter a valid number of burritos ❌", fg="darkred")
         self.root.after(2000, lambda: self.status_label.config(text=""))
 
 # ---------- Add -----------
@@ -118,18 +153,18 @@ class GUI:
         def place_order():
             name = name_entry.get().strip()
             if not name or name.isdigit():
-                self.status_label.config(text="Enter valid name ❌", fg="darkred")
+                self.status_label.config(text="❌ Enter valid name ❌", fg="darkred")
                 self.root.after(3000, lambda: self.status_label.config(text=""))
                 return
             if self.delivery_variable.get():
                 phone_number = phone_number_entry.get().strip()
                 address = address_entry.get().strip()
                 if not phone_number or not (7 <= len(phone_number) <= 18):
-                    self.status_label.config(text="Enter valid phone number ❌", fg="darkred")
+                    self.status_label.config(text="❌ Enter valid phone number ❌", fg="darkred")
                     self.root.after(3000, lambda: self.status_label.config(text=""))
                     return
                 if not address or address.isdigit():
-                    self.status_label.config(text="Enter valid address ❌", fg="darkred")
+                    self.status_label.config(text="❌ Enter valid address ❌", fg="darkred")
                     self.root.after(3000, lambda: self.status_label.config(text=""))
                     return
             else:
@@ -180,14 +215,13 @@ class GUI:
             kitchen_info_label.pack()
             self.track_widgets.append(kitchen_info_label)
 
-    def store_order(self):
+    def store_order(self, burritos):
         order = Orders(
             name=self.store_name,
-            phone_number=self.store_phone_number,
-            address=self.store_address,
-            burritos=self.burrito_count,
-            delivery=self.delivery_variable.get())
-
+            phone_number = self.store_phone_number,
+            address = self.store_address,
+            burritos = self.burrito_count,
+            delivery = self.delivery_variable.get())
         self.orders.append(order)
         self.save_orders_file()
 
