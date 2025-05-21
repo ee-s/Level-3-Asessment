@@ -1,9 +1,12 @@
 [
     {
-        "name": "4r",
+        "name": "e",
         "phone_number": "N/A",
         "address": "N/A",
-        "burritos": 3,
-        "delivery": false
+        "burritos": [
+            "Gourmet - $13.50"
+        ],
+        "delivery": false,
+        "total_price": 13.5
     }
 ]
