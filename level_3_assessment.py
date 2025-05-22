@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import json
 
 REGULAR_PRICE = 8.5
@@ -55,6 +56,7 @@ class GUI:
             for burrito in range(burrito_count):
                 var = tk.StringVar()
                 burrito_menu = ttk.Combobox(self.root, textvariable=var, values=burrito_types)
+                burrito_menu.set("Select a burrito")
                 burrito_menu.pack(pady=10)
                 burrito_menu.bind("<<ComboboxSelected>>", lambda event: self.updateprice_total())
                 self.track_widgets.append(burrito_menu)
@@ -71,14 +73,27 @@ class GUI:
     def process_burrito_selection(self):
         selected_burritos = [ver.get() for ver in self.burrito_boxes]
         if all(selected_burritos):
-            self.store_order(selected_burritos)
-            self.status_label.config(text="Order placed successfully ✅", fg="green")
-            self.root.after(2000, lambda: self.status_label.config(text=""))
-            self.clear_widgets()
-            self.burrito_boxes.clear()
+
+            if messagebox.askyesno("Confirm Order", "Are you sure you want to place this order?"):
+                self.store_order(selected_burritos)
+                self.status_label.config(text="Order placed successfully ✅", fg="green")
+                self.root.after(2000, lambda: self.status_label.config(text=""))
+                self.clear_widgets()
+                self.burrito_boxes.clear()
+
+            else: 
+                self.status_label.config(text="Order cancelled ❌", fg="darkred")
+                self.root.after(2000, lambda: self.status_label.config(text=""))
+                self.clear_widgets()
+                self.burrito_boxes.clear()
+
         else:
             self.status_label.config(text="❌ Please select all burrito types ❌", fg="darkred")
             self.root.after(2000, lambda: self.status_label.config(text=""))
+
+        back_btn = tk.Button(self.root, text="Back", command=self.back_to_main)
+        back_btn.pack()
+        self.track_widgets.append(back_btn)
 
     def updateprice_total(self):
         total_price = 0
@@ -141,17 +156,21 @@ class GUI:
 
     def delete_order(self, order_index):
         if 0 <= order_index < len(self.orders):
-            del self.orders[order_index]
-            self.save_orders_file()
-            self.status_label.config(text="Order deleted successfully ✅", fg="darkgreen")
-            self.root.after(2000, lambda: self.status_label.config(text=""))
-            self.clear_widgets()
-            self.management_summary()
-        else:
-            self.status_label.config(text="❌ Invalid order index ❌", fg="darkred")
-            self.root.after(2000, lambda: self.status_label.config(text=""))
+            if messagebox.askyesno("Confirm Order", "Are you sure you want to delete this order?"):
+                del self.orders[order_index]
+                self.status_label.config(text="Order deleted", fg="darkorange")
+                self.root.after(2000, lambda: self.status_label.config(text=""))
+                self.clear_widgets()
+            else: 
+                self.status_label.config(text="Order not deleted", fg="darkorange")
+                self.root.after(2000, lambda: self.status_label.config(text=""))
 
-# ---------- Add -----------
+
+    def back_to_main(self):
+        self.clear_widgets()
+        self.status_label.config(text="Returning to main menu", fg="darkorange")
+        self.root.after(2000, lambda: self.status_label.config(text=""))
+
     def enter_order(self):
         self.clear_widgets()
         self.highlight_button(self.order_button, [self.kitchen_button, self.management_button])
@@ -185,11 +204,15 @@ class GUI:
         hide_delivery_variables()
 
         def place_order():
+            back_btn = tk.Button(self.root, text="Back", command=self.back_to_main)
+            back_btn.pack()
+            self.track_widgets.append(back_btn)
             name = name_entry.get().strip()
             if not name or name.isdigit():
                 self.status_label.config(text="❌ Enter valid name ❌", fg="darkred")
                 self.root.after(3000, lambda: self.status_label.config(text=""))
-                return
+                return           
+            
             if self.delivery_variable.get():
                 phone_number = phone_number_entry.get().strip()
                 address = address_entry.get().strip()
@@ -197,17 +220,22 @@ class GUI:
                     self.status_label.config(text="❌ Enter valid phone number ❌", fg="darkred")
                     self.root.after(3000, lambda: self.status_label.config(text=""))
                     return
+                
                 if not address or address.isdigit():
                     self.status_label.config(text="❌ Enter valid address ❌", fg="darkred")
                     self.root.after(3000, lambda: self.status_label.config(text=""))
                     return
+                
             else:
                 phone_number = "N/A"
                 address = "N/A"
+            
+
 
             self.store_name = name
             self.store_phone_number = phone_number
             self.store_address = address
+            
 
             # Clear widgets after processing
             self.clear_widgets()
@@ -224,21 +252,6 @@ class GUI:
             address_label, address_entry,
             delivery_checkbox, submit_button]
 
-    def management_summary(self):
-        self.clear_widgets()
-        self.highlight_button(self.management_button, [self.order_button, self.kitchen_button])
-        management_label = tk.Label(self.root, text="Management Summary")
-        management_label.pack()
-        self.track_widgets += [management_label]
-
-        for idx,order in enumerate(self.orders, start=1):
-            burritos_text= "\n".join(order.burritos)
-            management_info_label = tk.Label(self.root, text=f" Order #{idx} Name: {order.name}\nPhone: {order.phone_number}\nAddress: {order.address} \nBurritos: {burritos_text}\nDelivery: {'Yes (+2.50$)' if order.delivery else 'No'}\n Total Price: ${order.total_price:.2f}")
-            management_info_label.pack()
-            delete_button = tk.Button(self.root, text="Delete", command=lambda i=idx-1: self.delete_order(i))
-            delete_button.pack()
-            self.track_widgets += [management_info_label, delete_button]
-
     def kitchen_summary(self):
         self.clear_widgets()
         self.highlight_button(self.kitchen_button, [self.order_button, self.management_button])
@@ -248,10 +261,45 @@ class GUI:
 
         for idx,order in enumerate(self.orders, start=1):
             burritos_text= "\n".join(order.burritos)
-            kitchen_info_label = tk.Label(self.root,text= f"""Odrer #{idx}\n Name: {order.name}- Address: {order.address} \n\n ORDER\nBurritos: {burritos_text}\nDelivery: {'Yes (+2.50$)' if order.delivery else 'No'}\n Total Price: ${order.total_price:.2f}""")
-            
-        kitchen_info_label.pack()
-        self.track_widgets.append(kitchen_info_label)
+            management_info_label = tk.Label(self.root, text=f" Order #{idx} Name: {order.name}\nPhone: {order.phone_number}\nAddress: {order.address} \nBurritos: {burritos_text}\nDelivery: {'Yes (+2.50$)' if order.delivery else 'No'}\n Total Price: ${order.total_price:.2f}")
+            management_info_label.pack()
+            delete_button = tk.Button(self.root, text="Delete", command=lambda i=idx-1: self.delete_order(i))
+            delete_button.pack()
+            self.track_widgets += [management_info_label, delete_button]
+        
+        back_btn = tk.Button(self.root, text="Back", command=self.back_to_main)
+        back_btn.pack()
+        self.track_widgets.append(back_btn)
+        
+
+    def management_summary(self):
+        self.clear_widgets()
+        self.highlight_button(self.management_button, [self.order_button, self.kitchen_button])
+        management_label = tk.Label(self.root, text="Management Summary")
+        management_label.pack()
+        self.track_widgets += [management_label]
+
+        total_deliveries = 0
+        total_burritos = 0
+        total_dinein = 0
+        total_sales_revenue = 0.0
+
+
+        for order in self.orders:
+            if order.delivery:
+                total_deliveries += 1
+            else:
+                total_dinein += 1
+            total_burritos += len(order.burritos)
+            total_sales_revenue += order.total_price
+
+        summary_label = tk.Label(self.root, text=f"Total Deliveries: {total_deliveries}\nTotal Dine-in Orders: {total_dinein}\nTotal Burritos Ordered: {total_burritos}\nTotal Sales Revenue: ${total_sales_revenue:.2f}")
+        summary_label.pack()
+        self.track_widgets.append(summary_label)
+
+        back_btn = tk.Button(self.root, text="Back", command=self.back_to_main)
+        back_btn.pack()
+        self.track_widgets.append(back_btn)
 
     def store_order(self, burritos_types):
         total_price = self.updateprice_total()

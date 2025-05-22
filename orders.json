@@ -1,12 +1,13 @@
 [
     {
-        "name": "e",
+        "name": "eliza",
         "phone_number": "N/A",
         "address": "N/A",
         "burritos": [
+            "Large - $13.50",
             "Gourmet - $13.50"
         ],
         "delivery": false,
-        "total_price": 13.5
+        "total_price": 27.0
     }
 ]
