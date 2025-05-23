@@ -5,7 +5,7 @@ Eliza Smith
 Burrito ordering system expressed with a GUI
 """
 
-# Importing libararies
+# Importing libraries
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -15,32 +15,32 @@ import json
 REGULAR_PRICE = 8.5
 DELIVERY_PRICE = 2.5
 HIGHER_PRICE = 13.5
-
+MAX_BURRITOS = 7
 
 # ------------------ Order Class ------------------
 class Orders:
     """
         The class represents a single burrito order
 
-        This stores customer infomation, burrito selection and infomation regarding the delivery.
+        This stores customer information, burrito selection and information regarding the delivery.
         
         Attributes:
             name (str): Customer's name
             phone_number (str): Customer's phone number
             address (str): Customer's address
             burritos (list): List of the selected burrito types
-            delivery (bool): Weather the order is delivered or not
+            delivery (bool): Whether the order is delivered or not
         """
     def __init__(self, name, phone_number, address, burritos, delivery):
         """
-        The method initalises the order with the following parameters:
+        The method initialises the order with the following parameters:
         
         Attributes:
             name (str): Customer's name
             phone_number (str): Customer's phone number
             address (str): Customer's address
             burritos (list): List of the selected burrito types
-            delivery (bool): Weather the order is delivered or not
+            delivery (bool): Whether the order is delivered or not
         """
         self.name = name
         self.phone_number = phone_number
@@ -57,7 +57,7 @@ class GUI:
     via a graphical user interface using Tkinter.
     This allows for users to:
 
-    - Input personal infomation such as name and delivery infomation
+    - Input personal information such as name and delivery information
     - Select the number of burritos
     - Select the type of burritos
     - View the management summary ( total sales, total burritos, total deliveries)
@@ -65,12 +65,12 @@ class GUI:
     - Delete orders
     - Save orders to a JSON file
 
-    These attributes and methods are specifcally organised to have a logical flow and 
-    clear, intutive structure. 
+    These attributes and methods are specifically organised to have a logical flow and 
+    clear, intuitive structure. 
     """
     def __init__(self, root):
         """
-        The method initalises the GUI 
+        The method initialises the GUI 
 
         Parameters:
             root (tk.Tk): This is the main window of the GUI
@@ -86,7 +86,7 @@ class GUI:
         self.label = tk.Label(root, text="Burritos", font=("Myriad pro", 23))
         self.label.pack(pady=20)
 
-        # Implements buttons for specifc functions
+        # Implements buttons for specific functions
         self.order_button = tk.Button(root, text="Enter Order", command=self.enter_order)
         self.order_button.pack(pady=10)
         self.management_button = tk.Button(root, text="Management Summary", command=self.management_summary)
@@ -120,7 +120,7 @@ class GUI:
         This method displays the order entry screen, allowing users to input their name and delivery information.
         It also includes a checkbox for delivery which if clicked, will show the phone number and address fields.
 
-        This allows for personal customer infomation to be entered.
+        This allows for personal customer information to be entered.
         """
         self.clear_widgets()
         self.highlight_button(self.order_button, [self.kitchen_button, self.management_button])
@@ -275,8 +275,8 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
 
     def select_burritos(self, burrito_count):
             """
-            Displays a selction of burritos as combo boxes for the user to select from.
-            This is specifc to the pre selected number of burritos and shows a real time  total cost.
+            Displays a selection of burritos as combo boxes for the user to select from.
+            This is specific to the pre selected number of burritos and shows a real time  total cost.
 
             Parameters:
                 burrito_count (int): The number of burritos to be selected.
@@ -300,18 +300,18 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
             self.price_label.pack(pady=10)
             self.track_widgets.append(self.price_label)
                    
-            confirm_button = tk.Button(self.root, text="Confirm", command=self.process_burrito_selection) # Calls the processing the burrito function
+            confirm_button = tk.Button(self.root, text="Confirm", command=self.process_burrito_selection) # Calls the function to process the burrito selection
             confirm_button.pack(pady=10)
             self.track_widgets.append(confirm_button)
 
     def process_burrito_selection(self):
         """
         This method processes the burrito selection and confirms the order.
-        It dose this via a pop up message confirming that they want this specifc order to be placed
-        and checking weasther all feilds have been entered.
+        It does this via a pop-up message confirming that they want this specific order to be placed
+        and checking whether all fields have been entered.
         """
         selected_burritos = [ver.get() for ver in self.burrito_boxes]
-        if all(selected_burritos):
+        if all(burrito and burrito != "Select a burrito" for burrito in selected_burritos):
 
             if messagebox.askyesno("Confirm Order", "Do you want to place this order?"):
                 self.store_order(selected_burritos)
@@ -327,14 +327,14 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
         else:
             self.info_pop_up("Select all burrito types ❌", "darkred")
         
-        back_button= tk.Button(self.root, text="Back", command=self.back_to_main) # Calls the back to main menu function
+        back_button= tk.Button(self.root, text="Back", command=self.back_to_main) # Calls the Back to the main menu function
         back_button.pack()
         self.track_widgets.append(back_button)
 
     def updateprice_total(self):
         """
-        This method updates the total price based of real time selected burritos.
-        It dose this via checking the type of burrito ordered and adding its price to the totoal price.
+        This method updates the total price based on real time selected burritos.
+        It does this via checking the type of burrito ordered and adding its price to the total price.
         """
         total_price = 0
         for var in self.burrito_boxes:
@@ -362,7 +362,7 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
     def highlight_button(self, clicked, others):
         """
         This method highlights the clicked button and resets the others to their default state.
-        This is done via a loop which changeds the button background colours.
+        This is done via a loop which changes the button background colours.
         Parameters:
             clicked (tk.Button): The clicked button.
             others (list): A list of the others to reset.
@@ -391,12 +391,12 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
     def process_burrito_count(self):
         """
         This method processes the amount of burritos the user wants to order and checks if this is a valid amount.
-        Pop-ups are used to inform the user if the amount is valid or not.
+        Pop-ups are used to inform the user if the amount is valid.
         """
         burrito_count = self.burrito_count_entry.get().strip()
         if burrito_count.isdigit():
             count = int(burrito_count)
-            if 0 < count < 10:
+            if 0 < count < MAX_BURRITOS:
                 self.burrito_count = count
                 self.status_label.config(text=f"""Ordering {self.burrito_count} burritos""", fg="darkgreen")
                 self.burrito_count_entry.delete(0, tk.END)
@@ -406,12 +406,12 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
                 self.info_pop_up("Processed ✅", "darkgreen")
                 self.order_button.config(bg="SystemButtonFace")
                 return burrito_count
-        self.info_pop_up("Invalid number of burritos 1-9 ❌", "darkred")
+        self.info_pop_up(f"Invalid number of burritos 1-{MAX_BURRITOS-1} ❌", "darkred")
        
     def delete_order(self, order_index):
         """
         This method deletes an order from the orders list.
-        This dose this via checking the orders position/index and confirming that the user wants to delete this order.
+        This does this via checking the orders position/index and confirming that the user wants to delete this order.
 
         Parameters:
             order_index (int): This is the index of the order to be deleted.
@@ -436,7 +436,7 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
         """
         This method stores the order.
         This is done through making an Orders object and appending it to a list.
-        This infomation is next saved to a JSON file.
+        This information is next saved to a JSON file.
 
         Parameters:
             burritos_types (list): The list of the selected burrito types.
