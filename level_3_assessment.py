@@ -116,6 +116,16 @@ class GUI:
         self.delivery_variable = tk.BooleanVar() # Checkbox for delivery
         self.burrito_boxes = []
 
+    def clear_widgets(self):
+        """
+        This method clears all widgets from the GUI.
+        This is done via a loop that removes each widget in the track_widgets list.
+
+        """
+        for widget in self.track_widgets:
+            widget.destroy()
+        self.track_widgets.clear()
+
     def info_pop_up(self, message, color= "darkorange", duration=2000):
         """
         Displays a pop-up message for a short period of time to inform users about order status.
@@ -175,9 +185,6 @@ class GUI:
             This is done via checking the name, phone number and address fields.
             If feilds are valid, order is placed and pop-up is displayed.
             """
-            back_button = tk.Button(self.root, text="Back", command=self.back_to_main)
-            back_button.pack(pady=5, padx=10)
-            self.track_widgets.append(back_button)
             name = name_entry.get().strip()
             if not name or name.isdigit():
                 self.info_pop_up("Invalid name ❌", "darkred")
@@ -313,11 +320,13 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
                 burrito_menu.pack(pady=10)
                 burrito_menu.bind("<<ComboboxSelected>>", lambda event: self.updateprice_total()) 
                 self.burrito_boxes.append(var)
+                self.track_widgets.append(burrito_menu)
             
             self.price_label = tk.Label(self.root, text="Total Price: $0.00")
             self.price_label.pack(pady=10)
             self.track_widgets.append(self.price_label)
-                   
+
+                              
             confirm_button = tk.Button(self.root, text="Confirm", command=self.process_burrito_selection) 
             confirm_button.pack(pady=10)
             self.track_widgets.append(confirm_button)
@@ -334,8 +343,8 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
             if messagebox.askyesno("Confirm Order", "Do you want to place this order?"):
                 self.store_order(selected_burritos)
                 self.info_pop_up("Order placed ✅", "darkgreen")
-                self.clear_widgets()
                 self.burrito_boxes.clear()
+                self.clear_widgets()
 
             else: 
                 self.info_pop_up("Order cancelled ❌", "darkred")
@@ -345,9 +354,6 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
         else:
             self.info_pop_up("Select all burrito types ❌", "darkred")
         
-        back_button= tk.Button(self.root, text="Back", command=self.back_to_main) 
-        back_button.pack(pady=5, padx=10)
-        self.track_widgets.append(back_button)
 
     def updateprice_total(self):
         """
@@ -370,16 +376,6 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
         self.price_label.pack(pady=10)
 
         return total_price
-            
-    def clear_widgets(self):
-        """
-        This method clears all widgets from the GUI.
-        This is done via a loop that removes each widget in the track_widgets list.
-
-        """
-        for widget in self.track_widgets:
-            widget.destroy()
-        self.track_widgets.clear()
 
     def highlight_button(self, clicked, others):
         """
