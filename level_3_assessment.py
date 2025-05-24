@@ -8,10 +8,9 @@ The program also allows for orders to be deleted from the kitchen screen.
 
 # Importing libraries
 import json
+# TKinter libraries
 import tkinter as tk
 from tkinter import ttk, messagebox
-
-
 
 # Constants for prices
 REGULAR_PRICE = 8.5
@@ -24,19 +23,20 @@ MAX_BURRITOS = 5   # Maximum number of burritos
 
 class Order:
     """
-        Class represents a single burrito order
+    Class represents a single burrito order
 
-        This stores customer information, burrito selection and information regarding the delivery.
+    This stores customer information, burrito selection and,
+    information regarding the delivery.
         
-        Methods:
-            __init__(self, name, phone_number, address, burritos, delivery):
-                Initialises the order with the following parameters:
-                - name (str): Customer's name
-                - phone_number (str): Customer's phone number
-                - address (str): Customer's address
-                - burritos (list): List of selected burrito types
-                - delivery (bool): Whether order is delivered
-                - total_price (float): Total price of the order
+    Methods:
+        __init__(self, name, phone_number, address, burritos, delivery):
+            Initialises the order with the following parameters:
+            - name (str): Customer's name
+            - phone_number (str): Customer's phone number
+            - address (str): Customer's address
+            - burritos (list): List of selected burrito types
+            - delivery (bool): Whether order is delivered
+            - total_price (float): Total price of the order
         """
     
 
@@ -68,16 +68,16 @@ class GUI:
     via a graphical user interface using Tkinter.
     This allows for users to:
 
-    - Input personal information such as name and delivery information
+    - Input personal information 
     - Select the number of burritos
     - Select the type of burritos
-    - View the management summary ( total sales, total burritos, total deliveries)
-    - View the kitchen summary (all orders, delivery or not, total price)
+    - View the management summary 
+    - View the kitchen summary 
     - Delete orders
     - Save orders to a JSON file
 
-    These attributes and methods are specifically organised to have a logical flow and 
-    clear, intuitive structure. 
+    These attributes and methods are specifically organised 
+    to have a logical flow and clear, intuitive structure. 
     """
 
 
@@ -88,7 +88,7 @@ class GUI:
         Args:
             root (tk.Tk): This is the main window of the GUI
 
-        Sets up the main attributes of the GUI, including the title, size, and buttons.
+        Sets up the main attributes of the GUI
         """
         self.root = root
         self.orders = []
@@ -111,7 +111,6 @@ class GUI:
         self.status_label = tk.Label(root, text="", fg="darkblue")
         self.status_label.pack(pady=(20,4))
         self.status_label.config(text="Burrito ordering system", fg="darkblue")
-
         self.track_widgets = []  # Tracks widgets for clearing
         self.delivery_variable = tk.BooleanVar() # Checkbox for delivery
         self.burrito_boxes = []
@@ -141,8 +140,10 @@ class GUI:
 
     def enter_order(self):
         """
-        This method displays the order entry screen, allowing users to input their name and delivery information.
-        It also includes a checkbox for delivery which if clicked, will show the phone number and address fields.
+        This method displays the order entry screen, 
+        allowing users to input their name and delivery information.
+        It also includes a checkbox for delivery which if clicked, 
+        will show the phone number and address fields.
         This allows for personal customer information to be entered.
         """
         self.clear_widgets()
@@ -154,8 +155,10 @@ class GUI:
 
         def hide_delivery_variables():
             """
-            This method hides/shows the delivery variables depending on the state of the delivery checkbox.
-            If the delivery checkbox is ticked the phone number and address fields will be shown.          
+            This method hides/shows the delivery variables,
+            depending on the state of the delivery checkbox.
+            If the delivery checkbox is ticked the phone number
+            and address fields will be shown.          
             """
             if self.delivery_variable.get():
                 phone_number_label.pack()
@@ -168,7 +171,8 @@ class GUI:
                 address_label.pack_forget()
                 address_entry.pack_forget()
 
-        delivery_checkbox = tk.Checkbutton(self.root, text="Delivery? (+2.50$)", variable=self.delivery_variable,
+        delivery_checkbox = tk.Checkbutton(self.root, text="Delivery? (+2.50$)", 
+                                           variable=self.delivery_variable,
                                            command=hide_delivery_variables)
         delivery_checkbox.pack()
 
@@ -233,25 +237,52 @@ class GUI:
         self.clear_widgets()
         self.highlight_button(self.kitchen_button, [self.order_button, self.management_button])
         kitchen_label = tk.Label(self.root, text="Kitchen summary")
-        kitchen_label.pack()
+        kitchen_label.pack(pady=(10,5))
         self.track_widgets += [kitchen_label]
+
+        frame = tk.Frame(self.root)
+        frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.track_widgets.append(frame)
+
+        canvas = tk.Canvas(frame)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        scroll_bar = tk.Scrollbar(frame, orient="vertical", command=canvas.yview)
+        scroll_bar.pack(side="right", fill="y")
+        canvas.config(yscrollcommand=scroll_bar.set)
+
+        self.track_widgets.append(scroll_bar)
+
+        inner_frame = tk.Frame(canvas)
+        canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+        def on_frame_configure(event):
+            """
+            This method configures the inner frame to fit the canvas.
+            This is done via setting the scroll region of the canvas.
+            """
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        inner_frame.bind("<Configure>", on_frame_configure)
+
 
         for idx,order in enumerate(self.orders, start=1):
             burritos_text= "\n".join(order.burritos)
-            management_info_label = tk.Label(self.root, text=f"""
+            order_info=f"""
              Order #{idx} 
              Name: {order.name}
              Phone: {order.phone_number}
              Address: {order.address} 
-             Burritos: {burritos_text}
+             Burritos: \n{burritos_text}
              Delivery: {'Yes (+2.50$)' if order.delivery else 'No'}
-             Total Price: ${order.total_price:.2f}""")
+             Total Price: ${order.total_price:.2f}"""
             
-            management_info_label.pack()
-            delete_button = tk.Button(self.root, text="Delete", command=lambda i=idx-1: self.delete_order(i))
+            order_label = tk.Label(inner_frame, text=order_info, justify="left")
+            order_label.pack(pady=5, padx=10, fill="x")
+           
+            delete_button = tk.Button(inner_frame, text="Delete", command=lambda i=idx-1: self.delete_order(i))
             delete_button.pack()
-            self.track_widgets += [management_info_label, delete_button]
-        
+            self.track_widgets += [delete_button,order_label]
+            
         back_button = tk.Button(self.root, text="Back", command=self.back_to_main)
         back_button.pack(pady=5, padx=10)
         self.track_widgets.append(back_button)
@@ -340,7 +371,7 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
         selected_burritos = [ver.get() for ver in self.burrito_boxes]
         if all(burrito and burrito != "Select a burrito" for burrito in selected_burritos):
 
-            if messagebox.askyesno("Confirm Order", "Do you want to place this order?"):
+            if messagebox.askyesno("Confirm Order", "Are you sure you want to place this order?"):
                 self.store_order(selected_burritos)
                 self.info_pop_up("Order placed ✅", "darkgreen")
                 self.burrito_boxes.clear()
@@ -352,13 +383,14 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
                 self.burrito_boxes.clear()
 
         else:
-            self.info_pop_up("Select all burrito types ❌", "darkred")
+            self.info_pop_up("Please select all burrito types ❌", "darkred")
         
 
     def updateprice_total(self):
         """
         This method updates the total price based on real time selected burritos.
-        It does this via checking the type of burrito ordered and adding its price to the total price.
+        It does this via checking the type of burrito ordered.
+        Adding its price to the total price.
 
         Returns:
             total_price (float): The total price of the order.
@@ -379,7 +411,8 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
 
     def highlight_button(self, clicked, others):
         """
-        This method highlights the clicked button and resets the others to their default state.
+        This method highlights the clicked button.
+        Resets the others to their default state.
         This is done via a loop which changes the button background colours.
 
         Args:
@@ -411,7 +444,8 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
     def process_burrito_count(self):
         """
         This method get the amount of burritos the user wants to order 
-        The amount is checked to be valid and pop-ups are used to inform the user if the amount is valid.
+        The amount is checked to be valid.
+        Pop-ups are used to inform the user if the amount is valid.
 
         Returns:
             burrito_count (int): The number of burritos user wants to order.
@@ -426,7 +460,7 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
                 self.clear_widgets()
 
                 self.select_burritos(self.burrito_count)
-                self.info_pop_up("Processed ✅", "darkgreen")
+                self.info_pop_up("Burrito number processed ✅", "darkgreen")
                 self.order_button.config(bg="SystemButtonFace")
                 return self.burrito_count
             
@@ -442,7 +476,7 @@ Total Sales Revenue: ${total_sales_revenue:.2f}""")
 
         """
         if 0 <= order_index < len(self.orders): # Checks the orders index is valid
-            if messagebox.askyesno("Confirm deletion", "Do you want to delete this order?"):
+            if messagebox.askyesno("Confirm deletion", "Are you sure you want to delete this order?"):
                 del self.orders[order_index]
                 self.info_pop_up("Order deleted", "darkorange")
                 self.clear_widgets()
