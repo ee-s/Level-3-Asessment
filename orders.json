@@ -1,14 +1,46 @@
 [
     {
-        "name": "e",
+        "name": "Eliza",
         "phone_number": "N/A",
         "address": "N/A",
         "burritos": [
+            "Plain - $8.50",
+            "Large - $13.50",
+            "Spicy - $8.50",
             "Cheese - $8.50",
-            "Cheese - $8.50",
-            "Cheese - $8.50"
+            "Plain - $8.50",
+            "Spicy - $8.50",
+            "Large - $13.50",
+            "Deluxe - $13.50",
+            "Gourmet - $13.50",
+            "Deluxe - $13.50",
+            "Large - $13.50",
+            "Plain - $8.50",
+            "Deluxe - $13.50",
+            "Large - $13.50",
+            "Spicy - $8.50",
+            "Spicy - $8.50",
+            "Gourmet - $13.50",
+            "Gourmet - $13.50",
+            "Large - $13.50",
+            "Deluxe - $13.50",
+            "Deluxe - $13.50",
+            "Large - $13.50",
+            "Gourmet - $13.50",
+            "Gourmet - $13.50"
         ],
         "delivery": false,
-        "total_price": 25.5
+        "total_price": 284.0
+    },
+    {
+        "name": "Sam Smith",
+        "phone_number": "(+64) 2442 3232",
+        "address": "12 Fraklin",
+        "burritos": [
+            "Gourmet - $13.50",
+            "Deluxe - $13.50"
+        ],
+        "delivery": true,
+        "total_price": 32.0
     }
 ]
